@@ -1,5 +1,18 @@
 <h2>New job form</h2>
-<form #jobForm="ngForm" (ngSubmit)="createJob(jobForm)">
+<div *ngIf="!customers?.length" class="no-customer">
+  <a [routerLink]="['/customers']">Create new customer</a>
+  <br/>
+  <br/>
+  <label>Please add a customer first to create new job.</label>
+</div>
+
+<form #jobForm="ngForm" (ngSubmit)="createJob(jobForm)" *ngIf="customers?.length">
+  <label for="customerId">Customer</label>
+  <select name="customerId" required #customerId="ngModel" ngModel placeholder="Please select" [(ngModel)]="newJob.customerId">
+    <option [ngValue]="undefined" selected>Please select</option>
+    <option *ngFor="let customer of customers" [ngValue]="customer.customerId">{{customer.name}}</option>
+  </select>
+  <small *ngIf="customerId.invalid">Please select a customer</small>
   <label for="engineer">Engineer</label>
   <select name="engineer" required #engineer="ngModel" ngModel placeholder="Please select" [(ngModel)]="newJob.engineer">
     <option [ngValue]="undefined" selected>Please select</option>
@@ -16,6 +29,7 @@
 <table spacing="0">
   <thead>
     <tr>
+      <th>Customer</th>
       <th>Engineer</th>
       <th>When</th>
       <th></th>
@@ -23,6 +37,7 @@
   </thead>
   <tbody>
     <tr *ngFor="let job of jobs">
+      <td>{{job.customer ? job.customer.name : 'Unknown'}}</td>
       <td>{{job.engineer}}</td>
       <td>{{job.when | date:'shortDate'}}</td>
       <td>

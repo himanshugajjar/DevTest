@@ -1,8 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using DeveloperTest.Business.Interfaces;
 using DeveloperTest.Database;
 using DeveloperTest.Database.Models;
+using DeveloperTest.Enums;
 using DeveloperTest.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DeveloperTest.Business
 {
@@ -17,22 +20,25 @@ namespace DeveloperTest.Business
 
         public JobModel[] GetJobs()
         {
-            return context.Jobs.Select(x => new JobModel
+            return context.Jobs.Include(x => x.Customer).Select(x => new JobModel
             {
                 JobId = x.JobId,
                 Engineer = x.Engineer,
-                When = x.When
+                When = x.When,
+                Customer = MapCustomerModel(x.Customer)
             }).ToArray();
         }
 
         public JobModel GetJob(int jobId)
         {
-            return context.Jobs.Where(x => x.JobId == jobId).Select(x => new JobModel
-            {
-                JobId = x.JobId,
-                Engineer = x.Engineer,
-                When = x.When
-            }).SingleOrDefault();
+            return context.Jobs.Include(c => c.Customer)
+                .Where(x => x.JobId == jobId).Select(x => new JobModel
+                {
+                    JobId = x.JobId,
+                    Engineer = x.Engineer,
+                    When = x.When,
+                    Customer = MapCustomerModel(x.Customer)
+                }).SingleOrDefault();
         }
 
         public JobModel CreateJob(BaseJobModel model)
@@ -40,7 +46,8 @@ namespace DeveloperTest.Business
             var addedJob = context.Jobs.Add(new Job
             {
                 Engineer = model.Engineer,
-                When = model.When
+                When = model.When,
+                CustomerId = model.CustomerId
             });
 
             context.SaveChanges();
@@ -49,7 +56,23 @@ namespace DeveloperTest.Business
             {
                 JobId = addedJob.Entity.JobId,
                 Engineer = addedJob.Entity.Engineer,
-                When = addedJob.Entity.When
+                When = addedJob.Entity.When,
+                Customer = MapCustomerModel(addedJob.Entity.Customer)
+            };
+        }
+
+        private static CustomerModel MapCustomerModel(Customer customer)
+        {
+            if (customer == null)
+            {
+                return null;
+            }
+
+            return new CustomerModel()
+            {
+                CustomerId = customer.CustomerId,
+                Name = customer.Name,
+                Type = Enum.Parse<CustomerType>(customer.Type, true)
             };
         }
     }

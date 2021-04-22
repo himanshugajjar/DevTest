@@ -8,6 +8,8 @@ namespace DeveloperTest.Database
     {
         public DbSet<Job> Jobs { get; set; }
 
+        public DbSet<Customer> Customers { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
@@ -21,6 +23,9 @@ namespace DeveloperTest.Database
                 .HasKey(x => x.JobId);
 
             modelBuilder.Entity<Job>()
+                .HasOne(j => j.Customer);
+
+            modelBuilder.Entity<Job>()
                 .Property(x => x.JobId)
                 .ValueGeneratedOnAdd();
 
@@ -31,6 +36,9 @@ namespace DeveloperTest.Database
                     Engineer = "Test",
                     When = DateTime.Now
                 });
+
+            modelBuilder.Entity<Customer>()
+                .HasKey(x => x.CustomerId);
         }
     }
 }

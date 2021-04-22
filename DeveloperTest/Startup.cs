@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using DeveloperTest.Business;
 using DeveloperTest.Business.Interfaces;
 using DeveloperTest.Database;
+using System.Text.Json.Serialization;
 
 namespace DeveloperTest
 {
@@ -22,12 +23,19 @@ namespace DeveloperTest
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services
+                .AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.IgnoreNullValues = true;
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddTransient<IJobService, JobService>();
+            services.AddTransient<ICustomerService, CustomerService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

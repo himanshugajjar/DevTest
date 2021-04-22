@@ -1,0 +1,35 @@
+<h2>New customer form</h2>
+<form #jobForm="ngForm" (ngSubmit)="createJob(jobForm)">
+  <label for="name">Customer Name</label>
+  <input type="text" name="name" ngModel required #when="ngModel" [(ngModel)]="newCustomer.name" minlength="5"/>
+  <small *ngIf="when.invalid">Please enter valid customer name</small>
+
+  <label for="type">Customer Type</label>
+  <select name="type" required #customerType="ngModel" ngModel placeholder="Please select" [(ngModel)]="newCustomer.type">
+    <option [ngValue]="undefined" selected>Please select</option>
+    <option *ngFor="let customerType of customerTypes">{{customerType}}</option>
+  </select>
+  <small *ngIf="customerType.invalid">Please select a customer type</small>
+
+  <button type="submit" [disabled]="jobForm.invalid">Add Customer</button>
+</form>
+
+<h2>Jobs list</h2>
+<table spacing="0">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let customer of customers">
+        <td>{{customer.name}}</td>
+        <td>{{customer.type}}</td>
+        <td>
+        <a [routerLink]="['/customer', customer.customerId]">Open</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
